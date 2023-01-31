@@ -24,6 +24,7 @@ func Cmd_Import() *cobra.Command {
 				return errors.New("missing tar and target")
 			}
 			reg := registry.CreateDockerRegistry(target_User, target_Password, target_IgnoreSSL)
+
 			reg.Upload(args[0], args[1])
 			fmt.Println("import called")
 			return nil

@@ -40,6 +40,8 @@ VOLUME [ "/go/bin/package_tmp" ]
 
 
 LABEL version="1.0.0"
+LABEL name="cimplex"
+LABEL maintainer="Andrew Pye"
 LABEL description="The solution enables you to easily export and import Docker containers from a registry without the need to install docker."
 
 

@@ -1,9 +1,14 @@
 package registry
 
 import (
+	"archive/tar"
+	"bufio"
+	"bytes"
 	"crypto/tls"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -24,6 +29,80 @@ type DockerRegistry struct {
 	User      string `json:"user" yaml:"user"`
 	Password  string `json:"password" yaml:"password"`
 	IgnoreSSL bool   `json:"ignore_ssl" yaml:"ignore_ssl"`
+}
+
+type Manifest []struct {
+	Config   string   `json:"Config"`
+	RepoTags []string `json:"RepoTags"`
+	Layers   []string `json:"Layers"`
+}
+
+func ExtractManifest(filePath string) (string, error) {
+	file, err := os.Open(filePath)
+	if err != nil {
+		return "", err
+	}
+	defer file.Close()
+
+	/*gzipReader, err := gzip.NewReader(bufio.NewReader(file))
+	if err != nil {
+		return "", err
+	}
+	defer gzipReader.Close()*/
+
+	tarReader := tar.NewReader(bufio.NewReader(file))
+
+	for {
+		header, err := tarReader.Next()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			return "", err
+		}
+
+		fileInfo := header.FileInfo()
+
+		if fileInfo.Name() == "manifest.json" {
+			buf := bytes.NewBuffer(nil)
+			writer := bufio.NewWriter(buf)
+
+			buffer := make([]byte, 4096)
+			for {
+				n, err := tarReader.Read(buffer)
+				if err != nil && err != io.EOF {
+					panic(err)
+				}
+				if n == 0 {
+					break
+				}
+
+				_, err = writer.Write(buffer[:n])
+				if err != nil {
+					return "", err
+				}
+			}
+
+			err = writer.Flush()
+			if err != nil {
+				return "", err
+			}
+
+			err = file.Close()
+			if err != nil {
+				return "", err
+			}
+
+			//decode the manifest
+
+			return buf.String(), nil
+		}
+	}
+	/*err = file.Close()
+	if err != nil {
+		return "", err
+	}*/
+	return "", nil
 }
 
 //Function to create the DockerRegistry struct
@@ -78,6 +157,21 @@ func (c *DockerRegistry) loadImage(path string, index bool) (partial.WithRawMani
 
 //Upload the image to docker Registry
 func (m *DockerRegistry) Upload(config string, image_path string) error {
+
+	//check the config
+	if strings.HasSuffix(config, "/") {
+		man, err := ExtractManifest(image_path)
+		if err != nil {
+			return err
+		}
+		var man_obj Manifest
+		err = json.Unmarshal([]byte(man), &man_obj)
+		if err != nil {
+			return err
+		}
+		parts := strings.Split(man_obj[0].RepoTags[0], "/")
+		config = fmt.Sprintf("%s%s", config, parts[len(parts)-1])
+	}
 
 	basicAuthn := &authn.Basic{
 		Username: m.User,

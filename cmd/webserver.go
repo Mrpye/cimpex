@@ -28,7 +28,6 @@ type ImportExportRequest struct {
 func DecodeB64(message string) (retour string) {
 	base64Text := make([]byte, base64.StdEncoding.DecodedLen(len(message)))
 	base64.StdEncoding.Decode(base64Text, []byte(message))
-	fmt.Printf("base64: %s\n", base64Text)
 	return string(base64Text)
 }
 
@@ -91,6 +90,46 @@ func postExport(c *gin.Context) {
 
 }
 
+func postExports(c *gin.Context) {
+	var importRequest []ImportExportRequest
+
+	// Call BindJSON to bind the received JSON to
+	if err := c.BindJSON(&importRequest); err != nil {
+		c.IndentedJSON(http.StatusBadRequest, "Bad payload")
+		return
+	}
+
+	user := ""
+	password := ""
+	if val, ok := c.Request.Header["Authorization"]; ok {
+		token := strings.Split(val[0], " ")[1]
+		dec := DecodeB64(token)
+		parts := strings.Split(dec, ":")
+		if parts[0] == "" || parts[1] == "" {
+			c.IndentedJSON(http.StatusUnauthorized, "Missing username or password")
+			return
+		}
+		user = parts[0]
+		password = parts[1]
+	}
+
+	reg := registry.CreateDockerRegistry(user, password, importRequest[0].IgnoreSSL)
+	var results []string
+	for _, o := range importRequest {
+		reg.IgnoreSSL = o.IgnoreSSL
+		err := reg.Download(o.Target, path.Join(web_base_folder, o.TarFile))
+		if err != nil {
+			c.IndentedJSON(400, err)
+			return
+		} else {
+			results = append(results, o.TarFile+" Exported")
+		}
+	}
+
+	c.IndentedJSON(http.StatusCreated, results)
+
+}
+
 func getOK(c *gin.Context) {
 
 	c.IndentedJSON(http.StatusCreated, "OK")
@@ -112,6 +151,8 @@ func Cmd_WebServer() *cobra.Command {
 
 			router.POST("/import", postImport)
 			router.POST("/export", postExport)
+			router.POST("/exports", postExports)
+
 			router.GET("/", getOK)
 
 			//**********************************

@@ -71,7 +71,27 @@ curl --location --request POST 'http://172.16.10.237:9020/export' \
 }
 ```
 
-## Import image from a registry
+## Export images from a registry
+``` bash
+curl --location --request POST 'http://localhost:9020/exports' \
+--header 'Content-Type: application/json' \
+--data-raw '[{
+    "target":"cimpex:v1.0.0",
+    "tar":"cimpex-v1-0-0.tar",
+    "ignore_ssl":true
+},
+{
+    "target":"helm-api:v1.0.0",
+    "tar":"helm-api-v1-0-0.tar",
+    "ignore_ssl":true
+}
+]
+```
+
+## Import image to a registry
+
+specify the name and tag
+
 ```bash
 curl --location --request POST 'localhost:8080/import' \
 --header 'Authorization: Basic YWRtaW46cGFzc3dvcmQ=' \
@@ -83,14 +103,48 @@ curl --location --request POST 'localhost:8080/import' \
 }'
 ```
 
+use the name and tag in tar manifest
+
+```bash
+curl --location --request POST 'localhost:8080/import' \
+--header 'Authorization: Basic YWRtaW46cGFzc3dvcmQ=' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "target":"library/",
+    "tar":"bind-latest.tar",
+    "ignore_ssl":true
+}'
+```
+
 ## Json Payload
 
 - target (location of the docker image import/export)
 - tar (name of the tar file will be saved in the export folder)
 - ignore_ssl (Ignore ssl cert)
 
+---
+
+## Test is alive
+```bash
+curl --location --request GET 'localhost:8080/'
+```
+Return OK
+
+---
+
+# Helm chart
+
+```
+cd charts
+# Validate the chart
+helm lint cimpex
+
+# Package the chart
+helm package cimpex
+
+```
+
 # To Do
-- want to be able to get the exported container details from the tar image name and tag so you can just point to the repo and the name and tag will be populated.
 - improve validation and error handling
 
 # 3rd party Libraries
