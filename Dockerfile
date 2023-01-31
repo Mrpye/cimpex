@@ -38,6 +38,11 @@ EXPOSE 8000
 
 VOLUME [ "/go/bin/package_tmp" ]
 
+
+LABEL version="1.0.0"
+LABEL description="The solution enables you to easily export and import Docker containers from a registry without the need to install docker."
+
+
 ENV BASE_FOLDER=/go/bin/images
 ENV WEB_IP=localhost
 ENV WEB_PORT=8080

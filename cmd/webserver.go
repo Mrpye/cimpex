@@ -91,6 +91,12 @@ func postExport(c *gin.Context) {
 
 }
 
+func getOK(c *gin.Context) {
+
+	c.IndentedJSON(http.StatusCreated, "OK")
+
+}
+
 func Cmd_WebServer() *cobra.Command {
 	var web_port string
 	var web_ip string
@@ -106,6 +112,7 @@ func Cmd_WebServer() *cobra.Command {
 
 			router.POST("/import", postImport)
 			router.POST("/export", postExport)
+			router.GET("/", getOK)
 
 			//**********************************
 			//Set up the environmental variables
