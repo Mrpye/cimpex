@@ -154,23 +154,35 @@ func (c *DockerRegistry) loadImage(path string, index bool) (partial.WithRawMani
 
 	return nil, fmt.Errorf("layout contains non-image (mediaType: %q), consider --index", desc.MediaType)
 }
+func (m *DockerRegistry) GetImageNameTag(image_path string) (string, error) {
+	man, err := ExtractManifest(image_path)
+	if err != nil {
+		return "", err
+	}
+	var man_obj Manifest
+	err = json.Unmarshal([]byte(man), &man_obj)
+	if err != nil {
+		return "", err
+	}
+	if len(man_obj) > 0 {
+		if len(man_obj[0].RepoTags) > 0 {
+			parts := strings.Split(man_obj[0].RepoTags[0], "/")
+			return parts[len(parts)-1], nil
+		}
+	}
+	return "", fmt.Errorf("no package info found")
+}
 
 //Upload the image to docker Registry
 func (m *DockerRegistry) Upload(config string, image_path string) error {
 
 	//check the config
 	if strings.HasSuffix(config, "/") {
-		man, err := ExtractManifest(image_path)
+		name_tag, err := m.GetImageNameTag(image_path)
 		if err != nil {
 			return err
 		}
-		var man_obj Manifest
-		err = json.Unmarshal([]byte(man), &man_obj)
-		if err != nil {
-			return err
-		}
-		parts := strings.Split(man_obj[0].RepoTags[0], "/")
-		config = fmt.Sprintf("%s%s", config, parts[len(parts)-1])
+		config = fmt.Sprintf("%s%s", config, name_tag)
 	}
 
 	basicAuthn := &authn.Basic{

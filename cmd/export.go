@@ -8,7 +8,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/Mrpye/cimpex/registry"
+	"github.com/Mrpye/cimpex/modules/registry"
 	"github.com/spf13/cobra"
 )
 

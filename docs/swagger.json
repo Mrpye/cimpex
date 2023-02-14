@@ -1,0 +1,194 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "cimpex is a CLI application written in Golang that gives the ability import and export docker images from a repository. GitHub repository at https://github.com/Mrpye/compex",
+        "title": "cimpex",
+        "contact": {
+            "url": "https://github.com/Mrpye/cimpex"
+        },
+        "license": {
+            "name": "Apache 2.0 licensed",
+            "url": "https://github.com/Mrpye/cimpex/blob/main/LICENSE"
+        },
+        "version": "1.0"
+    },
+    "host": "localhost:8080",
+    "basePath": "/",
+    "paths": {
+        "/": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Check API Endpoint",
+                "operationId": "check-api-endpoint",
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/export": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Export Docker Image from Registry to tar file",
+                "operationId": "post-export-docker-image",
+                "parameters": [
+                    {
+                        "description": "query params",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/body_types.ImportExportRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "tar file Exported",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/exports": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Exports Docker Images from Registry to tar file",
+                "operationId": "post-exports-docker-images",
+                "parameters": [
+                    {
+                        "description": "query params",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/body_types.ImportExportRequest"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "tar file Exported",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/import": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Import Docker Image to Registry from tar file",
+                "operationId": "post-import-docker-image",
+                "parameters": [
+                    {
+                        "description": "query params",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/body_types.ImportExportRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "tar file imported",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/list": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "List the docker images tar files in the directory",
+                "operationId": "post-list-docker-images",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/body_types.PackageInfo"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "body_types.ImportExportRequest": {
+            "type": "object",
+            "properties": {
+                "ignore_ssl": {
+                    "type": "boolean"
+                },
+                "tar": {
+                    "type": "string"
+                },
+                "target": {
+                    "type": "string"
+                }
+            }
+        },
+        "body_types.PackageInfo": {
+            "type": "object",
+            "properties": {
+                "image_name_tag": {
+                    "type": "string"
+                },
+                "tar_path": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

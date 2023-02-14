@@ -1,0 +1,127 @@
+basePath: /
+definitions:
+  body_types.ImportExportRequest:
+    properties:
+      ignore_ssl:
+        type: boolean
+      tar:
+        type: string
+      target:
+        type: string
+    type: object
+  body_types.PackageInfo:
+    properties:
+      image_name_tag:
+        type: string
+      tar_path:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact:
+    url: https://github.com/Mrpye/cimpex
+  description: cimpex is a CLI application written in Golang that gives the ability
+    import and export docker images from a repository. GitHub repository at https://github.com/Mrpye/compex
+  license:
+    name: Apache 2.0 licensed
+    url: https://github.com/Mrpye/cimpex/blob/main/LICENSE
+  title: cimpex
+  version: "1.0"
+paths:
+  /:
+    get:
+      operationId: check-api-endpoint
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+      summary: Check API Endpoint
+  /export:
+    post:
+      operationId: post-export-docker-image
+      parameters:
+      - description: query params
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/body_types.ImportExportRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: tar file Exported
+          schema:
+            type: string
+        "404":
+          description: error
+          schema:
+            type: string
+      summary: Export Docker Image from Registry to tar file
+  /exports:
+    post:
+      operationId: post-exports-docker-images
+      parameters:
+      - description: query params
+        in: body
+        name: request
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/body_types.ImportExportRequest'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: tar file Exported
+          schema:
+            type: string
+        "404":
+          description: error
+          schema:
+            type: string
+      summary: Exports Docker Images from Registry to tar file
+  /import:
+    post:
+      operationId: post-import-docker-image
+      parameters:
+      - description: query params
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/body_types.ImportExportRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: tar file imported
+          schema:
+            type: string
+        "404":
+          description: error
+          schema:
+            type: string
+      summary: Import Docker Image to Registry from tar file
+  /list:
+    post:
+      operationId: post-list-docker-images
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/body_types.PackageInfo'
+            type: array
+        "404":
+          description: error
+          schema:
+            type: string
+      summary: List the docker images tar files in the directory
+swagger: "2.0"
