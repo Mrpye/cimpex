@@ -13,6 +13,8 @@ definitions:
     properties:
       image_name_tag:
         type: string
+      status:
+        type: string
       tar_path:
         type: string
     type: object
@@ -107,6 +109,30 @@ paths:
           schema:
             type: string
       summary: Import Docker Image to Registry from tar file
+  /imports:
+    post:
+      operationId: post-import-list-docker-images
+      parameters:
+      - description: query params
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/body_types.ImportExportRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/body_types.PackageInfo'
+            type: array
+        "404":
+          description: error
+          schema:
+            type: string
+      summary: Import the tar files in the directory
   /list:
     post:
       operationId: post-list-docker-images

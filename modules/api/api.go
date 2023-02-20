@@ -186,6 +186,59 @@ func postListImages(c *gin.Context) {
 
 }
 
+// @Summary Import the tar files in the directory
+// @ID post-import-list-docker-images
+// @Produce json
+// @Param request body body_types.ImportExportRequest.request true true "query params"
+// @Success 200 {object}  []body_types.PackageInfo.response
+// @Failure 404 {string}  string "error"
+// @Router /imports [post]
+func postImportImagesFromFolder(c *gin.Context) {
+
+	var importRequest body_types.ImportExportRequest
+
+	// Call BindJSON to bind the received JSON to
+	if err := c.BindJSON(&importRequest); err != nil {
+		c.IndentedJSON(http.StatusBadRequest, "Bad payload")
+		return
+	}
+	token := strings.Split(c.Request.Header["Authorization"][0], " ")[1]
+	dec := helper.DecodeB64(token)
+	parts := strings.Split(dec, ":")
+	if parts[0] == "" || parts[1] == "" {
+		c.IndentedJSON(http.StatusUnauthorized, "Missing username or password")
+		return
+	}
+
+	reg := registry.CreateDockerRegistry(parts[0], parts[1], importRequest.IgnoreSSL)
+
+	files, err := helper.WalkMatch(web_base_folder, "*.tar")
+	if err != nil {
+		c.IndentedJSON(http.StatusCreated, err.Error())
+		return
+	}
+
+	var results []body_types.PackageInfo
+
+	for _, o := range files {
+		name_tag, _ := reg.GetImageNameTag(path.Join(web_base_folder, o))
+		err := reg.Upload(importRequest.Target+name_tag, path.Join(web_base_folder, o))
+		if err != nil {
+			if name_tag != "" {
+				results = append(results, body_types.PackageInfo{TarPath: o, ImageName: name_tag, Status: err.Error()})
+			}
+		} else {
+			if name_tag != "" {
+				results = append(results, body_types.PackageInfo{TarPath: o, ImageName: name_tag, Status: "OK"})
+			}
+		}
+
+	}
+
+	c.IndentedJSON(http.StatusCreated, results)
+
+}
+
 // Function to start web server
 func StartWebServer(ip string, port string, base_folder string) {
 	//****************
@@ -201,6 +254,7 @@ func StartWebServer(ip string, port string, base_folder string) {
 
 	router.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	router.POST("/import", postImport)
+	router.POST("/imports", postImportImagesFromFolder)
 	router.POST("/export", postExport)
 	router.POST("/exports", postExports)
 	router.POST("/list", postListImages)
@@ -219,6 +273,10 @@ func StartWebServer(ip string, port string, base_folder string) {
 		web_base_folder = os.Getenv("BASE_FOLDER")
 	}
 
-	router.Run(web_ip + ":" + web_port)
+	//****************
+	//Start the server
+	//****************
+	fmt.Printf("Web-Server started %s:%s", web_ip, web_port)
+	router.Run(fmt.Sprintf("%s:%s", web_ip, web_port))
 
 }
