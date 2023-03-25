@@ -40,6 +40,7 @@ cimpex is a CLI application written in Golang that gives the ability import and 
 | POST | /export | [post export docker image](#post-export-docker-image) | Export Docker Image from Registry to tar file |
 | POST | /exports | [post exports docker images](#post-exports-docker-images) | Exports Docker Images from Registry to tar file |
 | POST | /import | [post import docker image](#post-import-docker-image) | Import Docker Image to Registry from tar file |
+| POST | /imports | [post import list docker images](#post-import-list-docker-images) | Import the tar files in the directory |
 | POST | /list | [post list docker images](#post-list-docker-images) | List the docker images tar files in the directory |
   
 
@@ -198,6 +199,48 @@ Status: Not Found
 
 
 
+### <span id="post-import-list-docker-images"></span> Import the tar files in the directory (*post-import-list-docker-images*)
+
+```
+POST /imports
+```
+
+#### Produces
+  * application/json
+
+#### Parameters
+
+| Name | Source | Type | Go type | Separator | Required | Default | Description |
+|------|--------|------|---------|-----------| :------: |---------|-------------|
+| request | `body` | [BodyTypesImportExportRequest](#body-types-import-export-request) | `models.BodyTypesImportExportRequest` | | ✓ | | query params |
+
+#### All responses
+| Code | Status | Description | Has headers | Schema |
+|------|--------|-------------|:-----------:|--------|
+| [200](#post-import-list-docker-images-200) | OK | OK |  | [schema](#post-import-list-docker-images-200-schema) |
+| [404](#post-import-list-docker-images-404) | Not Found | error |  | [schema](#post-import-list-docker-images-404-schema) |
+
+#### Responses
+
+
+##### <span id="post-import-list-docker-images-200"></span> 200 - OK
+Status: OK
+
+###### <span id="post-import-list-docker-images-200-schema"></span> Schema
+   
+  
+
+[][BodyTypesPackageInfo](#body-types-package-info)
+
+##### <span id="post-import-list-docker-images-404"></span> 404 - error
+Status: Not Found
+
+###### <span id="post-import-list-docker-images-404-schema"></span> Schema
+   
+  
+
+
+
 ### <span id="post-list-docker-images"></span> List the docker images tar files in the directory (*post-list-docker-images*)
 
 ```
@@ -265,6 +308,7 @@ Status: Not Found
 | Name | Type | Go type | Required | Default | Description | Example |
 |------|------|---------|:--------:| ------- |-------------|---------|
 | image_name_tag | string| `string` |  | |  |  |
+| status | string| `string` |  | |  |  |
 | tar_path | string| `string` |  | |  |  |
 
 

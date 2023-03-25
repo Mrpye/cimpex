@@ -93,7 +93,7 @@ Check out the CLI documentation [here](./documents/cimpex.md)
 Export and image fromm a registry with no authentication
 
 ``` bash
-curl --location --request POST 'http://localhost:9020/export' \
+curl --location --request POST 'http://localhost:8080/export' \
 --header 'Content-Type: application/json' \
 --data-raw '{
     "target":"cimpex:v1.0.0",
@@ -105,11 +105,11 @@ curl --location --request POST 'http://localhost:9020/export' \
 Export from a registry with authentication
 
 ```bash
-curl --location --request POST 'http://172.16.10.237:9020/export' \
+curl --location --request POST 'http://localhost:8080/export' \
 --header 'Authorization: Basic YWRtaW46cGFzc3dvcmQ=' \
 --header 'Content-Type: application/json' \
 --data-raw '{
-    "target":"172.19.2.152/library/cimpex:v1.0.0",
+    "target":"127.0.0.1/library/cimpex:v1.0.0",
     "tar":"cimpex-v1-0-0.tar",
     "ignore_ssl":true
 }
@@ -121,7 +121,7 @@ curl --location --request POST 'http://172.16.10.237:9020/export' \
 
 ## Export images from a registry
 ``` bash
-curl --location --request POST 'http://localhost:9020/exports' \
+curl --location --request POST 'http://localhost:8080/exports' \
 --header 'Content-Type: application/json' \
 --data-raw '[{
     "target":"cimpex:v1.0.0",
@@ -174,12 +174,35 @@ curl --location --request POST 'localhost:8080/import' \
 - ignore_ssl (Ignore ssl cert)
 </details>
 
+<details>
+<summary>Import images to a registry from the BASE_FOLDER
+ folder</summary>
+
+Import an images and imports to the target registry
+
+```bash
+curl --location 'localhost:8080/imports' \
+--header 'Authorization: Basic YWRtaW46cGFzc3dvcmQ=' \
+--header 'Content-Type: application/json' \
+--data '{
+    "target":"127.0.0.1/library/",
+    "ignore_ssl":true
+}'
+
+```
+
+## Json Payload
+
+- target (the docker registry)
+- ignore_ssl (Ignore ssl cert)
+</details>
+
 
 <details>
 <summary>List images in the folder</summary>
 
 ```bash
-curl --location --request POST 'localhost:8080/list' \
+curl --location --request POST ''http://localhost:8080/list' \
 --header 'Content-Type: application/json' 
 ```
 </details>
@@ -189,7 +212,7 @@ curl --location --request POST 'localhost:8080/list' \
 <summary>Test is alive</summary>
 
 ```bash
-curl --location --request GET 'localhost:8080/'
+curl --location --request GET ''http://localhost:8080/'
 ```
 Return OK
 </details>

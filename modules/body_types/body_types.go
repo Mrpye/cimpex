@@ -9,4 +9,5 @@ type ImportExportRequest struct {
 type PackageInfo struct {
 	ImageName string `json:"image_name_tag"`
 	TarPath   string `json:"tar_path"`
+	Status    string `json:"status"`
 }

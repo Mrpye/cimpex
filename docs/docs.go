@@ -143,6 +143,43 @@ const docTemplate = `{
                 }
             }
         },
+        "/imports": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Import the tar files in the directory",
+                "operationId": "post-import-list-docker-images",
+                "parameters": [
+                    {
+                        "description": "query params",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/body_types.ImportExportRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/body_types.PackageInfo"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/list": {
             "post": {
                 "produces": [
@@ -189,6 +226,9 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "image_name_tag": {
+                    "type": "string"
+                },
+                "status": {
                     "type": "string"
                 },
                 "tar_path": {
