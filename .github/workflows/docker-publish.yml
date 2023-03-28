@@ -99,9 +99,10 @@ jobs:
       #  run: echo "${{ steps.meta.outputs.tags }}" | xargs -I {} cosign sign {}@${{ steps.build-and-push.outputs.digest }}
       - name: Sign the published Docker image
         run: |
-          cosign sign --key env://COSIGN_PRIVATE_KEY ${TAGS}
+          cosign sign --key env://COSIGN_PRIVATE_KEY ${TAGS}@${DIGEST}
         env:
-          TAGS: ${{ steps.docker_meta.outputs.tags }}
+          TAGS: ${{ steps.meta.outputs.tags }}
+          DIGEST: ${{ steps.build-and-push.outputs.digest }}
           COSIGN_PRIVATE_KEY: ${{secrets.COSIGN_PRIVATE_KEY}}
           COSIGN_PASSWORD: ${{secrets.COSIGN_PASSWORD}}
 
